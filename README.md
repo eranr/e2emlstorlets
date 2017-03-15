@@ -17,7 +17,7 @@ a docker container that has the all the necessary packages
 for running the storlets in the repo.
 Those packages include: opencv, scikit-learn and dlib
 
-# COPYERIGHT Notice
+# Copyright Notice
 The code behind the face swap is a combination of code borrowed from
 Satya Mallic [0], [1] and from Matthew Earl [2], [3]
 
