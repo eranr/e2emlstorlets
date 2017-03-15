@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 import dlib
 import threading
+from contextlib import contextmanager
 
 PREDICTOR_PATH = "/opt/shape_predictor_68_face_landmarks.dat"
 detector = dlib.get_frontal_face_detector()
@@ -18,7 +19,7 @@ def get_landmarks(im):
     if len(rects) > 1:
         raise TooManyFaces
     if len(rects) == 0:
-        raise NoFaces
+        raise Exception('No face detected')
 
     return [(p.x, p.y) for p in predictor(im, rects[0]).parts()]
 
@@ -174,49 +175,23 @@ def swap_face(img2, img1):
     output = cv2.seamlessClone(np.uint8(img1Warped), img2, mask, center, cv2.NORMAL_CLONE)
     return output
 
-def crop(img, rect):
-    h = rect[3]-rect[1]
-    w = rect[2]-rect[0]
-    x = rect[0]
-    y = rect[1]
-    return img[y:y+h, x:x+w]
-
-
-def recognize_face(frame, model, id_to_name):
-    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml")
-    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    rects = cascade.detectMultiScale(gray_frame)
-    if len(rects) == 0:
-        return [], mat
-    rects[:, 2:] += rects[:, :2]
-    face = crop(gray_frame, rects[0])
-    small_face = cv2.resize(face, (30,30))
-    small_face_array = np.asarray(small_face[:,:])
-    small_face_vec = small_face_array.reshape(1,900)
-    face_id = model.predict(small_face_vec)
-    return id_to_name[round(face_id)]
-
-
-def id_to_name_dict(name_to_id):
-    id_to_name = dict()
-    for k, v in name_to_id:
-        id_to_name[v] = k
-
-    return id_to_name
 
 @contextmanager
-def avi_fifo(name):
+def avi_fifo(name, logger):
     try:
         os.mkfifo(name, 0666)
     except OSError as e:
         if e.errno == 17:
             os.unlink(name)
             os.mkfifo(name, 0666)
+        else:
+            logger.debug('mkfifo exception %s' % str(e))
 
     try:
         yield
     finally:
         os.unlink(name)
+
 
 class fifo_worker(threading.Thread):
     def __init__(self, output, fifo_name, logger):
@@ -233,15 +208,17 @@ class fifo_worker(threading.Thread):
             try:
                 chunk = os.read(fd, 1024*64)
                 if len(chunk)>0:
-                    output.write(chunk)
+                    self.output.write(chunk)
                 else:
                     self.logger.debug('empty chunk\n')
                     break
             except OSError as e:
+                self.logger.debug('worker exception\n' % str(e))
                 break
 
         os.close(fd)
         self.logger.debug('fifo worker exits\n')
+
 
 def main_loop(cap, capo, face, logger):
     while(True):
@@ -284,10 +261,10 @@ class MovieSwapFace(object):
         face_file.close()
         self.logger.debug('face decoded\n')
 
-        fifo_name = 'fifo_%s.avi' % str(os.getpid())
-        with avi_fifo(fifo_name):
-            worker = fifo_worker(dest_movie, fifo_name,
-                                 fifo_name, self.logger)
+        fifo_name = '/tmp/fifo_%s.avi' % str(os.getpid())
+        with avi_fifo(fifo_name, self.logger):
+            worker = fifo_worker(out_files[0], fifo_name,
+                                 self.logger)
             worker.start()
 
             cap = cv2.VideoCapture('pipe:%d' % movie_fd, cv2.CAP_FFMPEG)
