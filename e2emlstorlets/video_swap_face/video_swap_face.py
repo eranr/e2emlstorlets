@@ -291,7 +291,6 @@ class MovieSwapFace(object):
                 worker.join()
                 self.logger.debug('Worker thread finished\n')
 
-        os.close(fdi)
         cap.release()
         movie_file.close()
         self.logger.debug('Done.')

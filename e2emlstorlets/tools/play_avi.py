@@ -3,9 +3,9 @@ import os
 import cv2
 
 def main(args):
-
-    fdi = os.open(args[0], os.O_RDONLY)
-    cap = cv2.VideoCapture('pipe:%d' % fdi, cv2.CAP_FFMPEG)
+    print args[0]
+    cap = cv2.VideoCapture(args[0], cv2.CAP_FFMPEG)
+    print(cap.isOpened())
 
     while(True):
         ret, frame = cap.read()
@@ -17,7 +17,6 @@ def main(args):
                 break
         else:
             break
-    os.close(fdi)
     cap.release()
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-git clone https://github.com/openstack/storlets ~/storlets
+#git clone https://github.com/openstack/storlets ~/storlets
 cd ~/storlets
 ./s2aio.sh dev host
 

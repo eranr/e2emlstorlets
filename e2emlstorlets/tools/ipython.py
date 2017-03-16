@@ -24,6 +24,8 @@ from __future__ import print_function
 
 import os
 import string
+import cv2
+from IPython.display import clear_output
 from swiftclient.client import Connection
 
 from IPython.core import magic_arguments
@@ -444,6 +446,57 @@ class StorletMagics(Magics):
         for obj_dict in objects:
             obj_names.append(obj_dict['name'])
         self.shell.user_ns[args.o] = obj_names
+
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument(
+        '-c', type=unicode_type,
+        help=('A name of an input container to read')
+    )
+    @magic_arguments.argument(
+        '-v', type=unicode_type,
+        help=('A name of an input video to play')
+    )
+    @line_magic
+    def play_video(self, line):
+        args = magic_arguments.parse_argstring(self.play_video, line)
+        if not args.c:
+            raise UsageError('-c option is mandatory')
+        if not args.v:
+            raise UsageError('-v option is mandatory')
+
+        conn = get_swift_connection()
+        resp_headers, resp_content_iter = conn.get_object(
+            args.c, args.v)
+        video_fname = '/tmp/%s' % args.v
+        with open(video_fname,'w') as video_file:
+            video_file.write(resp_content_iter)
+
+        vid = cv2.VideoCapture(video_fname)
+        try:
+            while(True):
+                # Capture frame-by-frame
+                ret, frame = vid.read()
+                if not ret:
+                    # Release the Video Device if ret is false
+                    vid.release()
+                    # Message to be displayed after releasing the device
+                    break
+                # Convert the image from OpenCV BGR format to matplotlib RGB format
+                # to display the image
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                # Turn off the axis
+                axis('off')
+                # Title of the window
+                title("Input Stream")
+                # Display the frame
+                imshow(frame)
+                show()
+                # Display the frame until new frame is available
+                clear_output(wait=True)
+        except KeyboardInterrupt:
+            # Release the Video Device
+            vid.release()
+            
 
 def load_ipython_extension(ipython):
     ipython.register_magics(StorletMagics)
