@@ -1,7 +1,5 @@
 git clone https://github.com/openstack/storlets ~/storlets
 cd ~/storlets
-git cherry-pick b0f64e88be428e5f78486ae8bc415b71777cbbd3
-git cherry-pick d6f32edd741dc08396c8088a400fcdf69ccad779
 ./s2aio.sh dev host
 
 NUM_IMAGES=`sudo docker images | grep  -v ubuntu | grep -v REPOSITORY | awk '{print $1}' | wc -l`

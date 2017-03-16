@@ -25,3 +25,11 @@ Satya Mallic [0], [1] and from Matthew Earl [2], [3]
 [1] https://github.com/spmallick/learnopencv/tree/master/FaceSwap
 [2] http://matthewearl.github.io/2015/07/28/switching-eds-with-python/
 [3] https://github.com/matthewearl/faceswap/blob/master/faceswap.py
+
+# Running the demo
+
+```
+sudo python setup.py install
+python upload_data create
+jupyter notebook --no-browser --ip=<host ip>
+```

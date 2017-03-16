@@ -295,6 +295,12 @@ class StorletMagics(Magics):
               'status, headers, holding the reponse status and '
               'headers accordingly')
     )
+    @magic_arguments.argument(
+        '--extra', type=unicode_type,
+        help='Specift a comma seperated list of extra resources'
+             'this option must be of the form '
+             '"<container>/<object>,...,<container>/<object>"'
+    )
     @line_magic
     def copy(self, line):
         args = magic_arguments.parse_argstring(self.copy, line)
@@ -319,21 +325,21 @@ class StorletMagics(Magics):
 
         headers = {'X-Run-Storlet': '%s' % args.storlet}
         headers.update(self._generate_params_headers(args))
+        if args.extra:
+            headers['X-Storlet-Extra-Resources'] = args.extra
 
         # invoke storlet app on copy
         conn = get_swift_connection()
         response_dict = dict()
-        resp_headers, resp_content_iter = conn.copy_object(
+        conn.copy_object(
             src_container, src_obj,
             destination=destination,
-            resp_chunk_size=64 * 1024,
             headers=headers,
             response_dict=response_dict)
 
         res = dict()
-        res['headers'] = resp_headers
+        res['headers'] = response_dict['headers']
         res['status'] = response_dict['status']
-        print('Invocation Complete')
         self.shell.user_ns[args.o] = res
 
     @magic_arguments.magic_arguments()
@@ -406,6 +412,38 @@ class StorletMagics(Magics):
         print('Invocation Complete')
         self.shell.user_ns[args.o] = res
 
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument(
+        '-i', type=unicode_type,
+        help=('A name of an input container to read')
+    )
+    @magic_arguments.argument(
+        '-o', type=unicode_type,
+        help=('A name of an output variable to hold the container listing')
+    )
+    @line_magic
+    def list_container(self, line):
+        args = magic_arguments.parse_argstring(self.list_container, line)
+        if not args.i:
+            raise UsageError('-i option is mandatory for listing')
+        if not args.o:
+            raise UsageError('-o option is mandatory for listing')
+        if not args.o[0].startswith(tuple(string.ascii_letters)):
+            raise UsageError('The output variable name must be a valid prefix '
+                             'of a python variable, that is, start with a '
+                             'letter')
+
+        # Get the objects
+        conn = get_swift_connection()
+        _, objects = conn.get_container(
+            args.i,
+            full_listing=True)
+
+        # Populate the returned list
+        obj_names = []
+        for obj_dict in objects:
+            obj_names.append(obj_dict['name'])
+        self.shell.user_ns[args.o] = obj_names
 
 def load_ipython_extension(ipython):
     ipython.register_magics(StorletMagics)
