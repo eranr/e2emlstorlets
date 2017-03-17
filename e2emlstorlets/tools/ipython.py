@@ -471,7 +471,9 @@ class StorletMagics(Magics):
         with open(video_fname,'w') as video_file:
             video_file.write(resp_content_iter)
 
-        vid = cv2.VideoCapture(video_fname)
+        vidfd = os.open(video_fname,'r')
+        vid = cv2.VideoCapture('pipe:%d' % vidfd, cv2.CAP_FFMPEG)
+        print(vid.isOpened())
         try:
             while(True):
                 # Capture frame-by-frame
