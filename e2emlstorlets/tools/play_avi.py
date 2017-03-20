@@ -2,10 +2,9 @@ import sys
 import os
 import cv2
 
-def main(args):
-    print args[0]
-    cap = cv2.VideoCapture(args[0], cv2.CAP_FFMPEG)
-    print(cap.isOpened())
+
+def play(filename):
+    cap = cv2.VideoCapture(filename, cv2.CAP_FFMPEG)
 
     while(True):
         ret, frame = cap.read()
@@ -18,6 +17,11 @@ def main(args):
         else:
             break
     cap.release()
+    cv2.destroyAllWindows()
+
+def main(args):
+    print args[0]
+    play(args[0])
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

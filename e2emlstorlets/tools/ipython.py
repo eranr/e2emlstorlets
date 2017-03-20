@@ -27,6 +27,8 @@ import string
 import cv2
 from IPython.display import clear_output
 from swiftclient.client import Connection
+from play_avi import play
+from show_jpg import show_image
 
 from IPython.core import magic_arguments
 # TODO(kota_): we may need some error handing in ipython shell so keep those
@@ -471,34 +473,35 @@ class StorletMagics(Magics):
         with open(video_fname,'w') as video_file:
             video_file.write(resp_content_iter)
 
-        vidfd = os.open(video_fname,'r')
-        vid = cv2.VideoCapture('pipe:%d' % vidfd, cv2.CAP_FFMPEG)
-        print(vid.isOpened())
-        try:
-            while(True):
-                # Capture frame-by-frame
-                ret, frame = vid.read()
-                if not ret:
-                    # Release the Video Device if ret is false
-                    vid.release()
-                    # Message to be displayed after releasing the device
-                    break
-                # Convert the image from OpenCV BGR format to matplotlib RGB format
-                # to display the image
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                # Turn off the axis
-                axis('off')
-                # Title of the window
-                title("Input Stream")
-                # Display the frame
-                imshow(frame)
-                show()
-                # Display the frame until new frame is available
-                clear_output(wait=True)
-        except KeyboardInterrupt:
-            # Release the Video Device
-            vid.release()
-            
+        play(video_fname)
+        os.unlink(video_fname)
+
+    @magic_arguments.magic_arguments()
+    @magic_arguments.argument(
+        '--input', type=unicode_type,
+        help='The input object of an image to show'
+             'this option must be of the form "path:<container>/<object>"'
+    )
+    @line_magic
+    def show_image(self, line):
+        args = magic_arguments.parse_argstring(self.show_image, line)
+        if not args.input:
+            raise UsageError('--input option is mandatory')
+
+        src_container, src_obj = self._parse_input_path(args.input)
+
+        # invoke storlet app on get
+        conn = get_swift_connection()
+        response_dict = dict()
+        resp_headers, resp_content_iter = conn.get_object(
+            src_container,
+            src_obj,
+            response_dict=response_dict)
+        img_str = ''
+        for buf in resp_content_iter:
+            img_str += buf
+        show_image(img_str)
+
 
 def load_ipython_extension(ipython):
     ipython.register_magics(StorletMagics)
