@@ -14,10 +14,11 @@ sudo apt-get install --assume-yes libvorbis-dev libxvidcore-dev v4l-utils
 sudo apt-get install libboost-all-dev -y
 sudo pip install dlib
 sudo pip install matplotlib
+sudo pip install boto3
 sudo apt-get install python-tk
 wget http://sourceforge.net/projects/dclib/files/dlib/v18.10/shape_predictor_68_face_landmarks.dat.bz2
 bzip2 -d shape_predictor_68_face_landmarks.dat.bz2
-mv shape_predictor_68_face_landmarks.dat /opt/
+sudo mv shape_predictor_68_face_landmarks.dat /opt/
 pushd .
 cd ~
 git clone https://github.com/opencv/opencv.git

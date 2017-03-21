@@ -10,12 +10,16 @@ git clone https://github.com/eranr/e2emlstorlets.git
 cd e2emlstorlets
 ./install.sh
 tox -e functional
+./prepare_machine.sh
 ```
 
 This will install Swift and Storlets on the VM together with
 a docker container that has the all the necessary packages
 for running the storlets in the repo.
 Those packages include: opencv, scikit-learn and dlib
+
+In addition the prepare_machine.sh will install all the necessary
+packages to run jupyter and the demo notebook.
 
 # Copyright Notice
 The code behind the face swap is a combination of code borrowed from
@@ -33,3 +37,7 @@ sudo python setup.py install
 python upload_data create
 jupyter notebook --no-browser --ip=<host ip>
 ```
+
+Follow the output of the "jupyter_notebook" instruction above
+to connect from a browser. From the browser, open the notebook:
+"e2emlstorlets/e2e-demo-swift.ipynb"
