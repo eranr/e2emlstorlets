@@ -1,4 +1,4 @@
-sudo apt-get install python-numpy -y
+sudo pip install python-numpy==1.11.3 -y
 sudo apt-get install python-scipy -y
 sudo pip install scikit-learn==0.18
 sudo apt-get install libboost-all-dev -y

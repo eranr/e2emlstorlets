@@ -72,9 +72,9 @@ class DemoData():
         client.delete_container(self.url, self.token, container_name)    
 
     def create_demo_data(self):
-        #self.upload_train_files('data/train')
+        self.upload_train_files('data/train')
         #self.upload_test_files('data/test')
-        self.upload_video()
+        #self.upload_video()
         #self.create_other_containers()
 
     def delete_demo_data(self):

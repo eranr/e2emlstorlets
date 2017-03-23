@@ -3,10 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def show_plot(e, tr, s, t, es3, trs3, ss3, ts3):
-    N = 4
-    storlets = (e, tr, s, t)
-    s3 = (es3, trs3, ss3, ts3)
+def show_plot(e, tr, t, es3, trs3, ts3):
+    N = 3
+    storlets = (e, tr, t)
+    s3 = (es3, trs3, ts3)
     
     ind = np.arange(N)  # the x locations for the groups
     width = 0.35       # the width of the bars
@@ -41,12 +41,10 @@ def show_plot(e, tr, s, t, es3, trs3, ss3, ts3):
 def main(args):
     e = int(args[0])
     tr = int(args[2])
-    s = int(args[4])
-    t = int(args[6])
+    t = int(args[4])
     es3 = int(args[1])
     trs3 = int(args[3])
-    ss3 = int(args[5])
-    ts3 = int(args[7])
+    ts3 = int(args[5])
     show_plot(e, tr, s, t, es3, trs3, ss3, ts3)
 
 if __name__ == "__main__":

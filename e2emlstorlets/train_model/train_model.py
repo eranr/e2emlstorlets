@@ -43,6 +43,7 @@ class TrainModel(object):
                 if not buf:
                     break
                 img_str += buf   
+            input_file.close()
             self.logger.debug('Recieved %d bytes\n' % len(img_str))
             img_nparray = np.fromstring(img_str, np.uint8)
             image_mat = cv2.imdecode(img_nparray, cv2.IMREAD_GRAYSCALE)
@@ -51,18 +52,18 @@ class TrainModel(object):
             X[i,:] = image_vec
             y[i] = name
             i=i+1
-            input_file.close()
             self.logger.debug('Done with %s\n' % name)
 
         self.logger.debug('Done reading data\n')
     
         classifier = snn.MLPClassifier(
-        hidden_layer_sizes=(100,50,25,10),
-        activation='logistic',
-        solver='lbfgs',
-        max_iter=2000,
-        alpha=0.000001,
-        tol=1e-6)
+            hidden_layer_sizes=(100,50,25,10),
+            activation='logistic',
+            solver='lbfgs',
+            max_iter=2000,
+            alpha=0.000001,
+            tol=1e-7,
+            random_state=1)
         classifier.fit(X,y)
         self.logger.debug('Done Training\n')
 

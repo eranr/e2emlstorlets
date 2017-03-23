@@ -18,7 +18,7 @@ import numpy as np
 
 def detect(im):
     mat=cv2.imdecode(im, cv2.IMREAD_GRAYSCALE)
-    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml")
+    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml")
     rects = cascade.detectMultiScale(mat)
 
     if len(rects) == 0:

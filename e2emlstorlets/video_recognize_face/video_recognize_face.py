@@ -29,11 +29,11 @@ def crop(img, rect):
 
 
 def recognize_face(frame, model):
-    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml")
+    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml")
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     rects = cascade.detectMultiScale(gray_frame)
     if len(rects) == 0:
-        return [], mat
+        return 'I do not know'
     rects[:, 2:] += rects[:, :2]
     face = crop(gray_frame, rects[0])
     small_face = cv2.resize(face, (50,55))

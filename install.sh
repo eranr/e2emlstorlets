@@ -26,7 +26,7 @@ MAINTAINER root
 # to prevent docker images from including apt cache file.
 RUN apt-get update && \
     apt-get install cmake -y && \
-    apt-get install python-numpy -y && \
+    pip install python-numpy==1.11.3 -y && \
     apt-get install python-scipy -y && \
     pip install scikit-learn==0.18 && \
     apt-get install libboost-all-dev -y && \

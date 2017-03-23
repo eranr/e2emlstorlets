@@ -50,16 +50,16 @@ def tag_movie_face(input_movie_path, input_model_path):
 def get_tag_and_upload(movie_object):
     client = boto3.client('s3')
 
-    print('Downloading swapped movie from S3')
+    print('Downloading source movie to tag from S3')
     res = client.get_object(Bucket='e2emlstorlets-video',
                             Key=movie_object)
-    with open('/tmp/source_swapped_movie.avi','w') as f:
+    with open('/tmp/source_movie.avi','w') as f:
         while(True):
             buf = res['Body'].read(1024)
             if buf:
                 f.write(buf)
             else:
-                print('Swapped movie download Done.')
+                print('Source movie download Done.')
                 break
 
     print('Downloading model')
@@ -75,7 +75,7 @@ def get_tag_and_upload(movie_object):
                 break
 
     print('Tagging face')
-    tag_movie_face('/tmp/source_swapped_movie.avi', '/tmp/model')
+    tag_movie_face('/tmp/source_movie.avi', '/tmp/model')
 
     print('Uploading Result')
     with open('/tmp/tagged_movie.avi','r') as f:

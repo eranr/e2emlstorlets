@@ -27,7 +27,7 @@ def build_traning_data(client):
         img_nparray = np.fromstring(img_str, np.uint8)
         image_mat = cv2.imdecode(img_nparray, cv2.IMREAD_GRAYSCALE)
         image_array = np.asarray(image_mat[:,:])
-        image_vec = image_array.reshape(1,900)
+        image_vec = image_array.reshape(1,2750)
         X[i,:] = image_vec
         y[i] = leader_name
         i=i+1

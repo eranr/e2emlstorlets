@@ -6,7 +6,7 @@ from e2emlstorlets.training_constants import *
 
 def detect(im):
     mat=cv2.imdecode(im, cv2.IMREAD_GRAYSCALE)
-    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml")
+    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml")
     rects = cascade.detectMultiScale(mat)
 
     if len(rects) == 0:
@@ -39,7 +39,7 @@ def get_name(obj_name):
 
 def extract_face(path, outpath):
     mat=cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml")
+    cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt2.xml")
     rects = cascade.detectMultiScale(mat)
 
     if len(rects) == 0:
