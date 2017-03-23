@@ -32,7 +32,17 @@ def crop(img, rect):
     w = rect[2]-rect[0]
     x = rect[0]
     y = rect[1]
-    return img[y:y+h, x:x+w]
+    # account for forehead part
+    hm = 0.1 * h
+    hm = int(hm)
+    if y >= hm:
+        cropped = img[y-hm:y+h, x:x+w]
+    else:
+        h = h + (hm - y)
+        hm = y
+        cropped = img[y-hm:y+h, x:x+w]
+    return cropped
+
 
 class ExtractFace(object):
     def __init__(self, logger):
@@ -57,7 +67,7 @@ class ExtractFace(object):
         metadata['rect']=str(rect)
         out_files[0].set_metadata(metadata)
         face = crop(mat, rect)
-        small_face = cv2.resize(face, (30,30))
+        small_face = cv2.resize(face, (50,55))
         retval, small_face_buf = cv2.imencode('.jpg', small_face)
         out_files[0].write(small_face_buf)
         in_files[0].close()

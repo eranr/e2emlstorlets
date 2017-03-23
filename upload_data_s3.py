@@ -35,13 +35,19 @@ class DemoData():
                     Key=f)
                 print response
 
-    def upload_video(self):
+    def _upload_video(self, local_file, obj_name):
         self.client.create_bucket(Bucket='e2emlstorlets-video')
-        with open('test/data/eran_mov.avi','r') as buf:
+        with open(local_file,'r') as buf:
             self.client.put_object(
                               Body=buf,
                               Bucket='e2emlstorlets-video',
-                              Key='eran_mov.avi')
+                              Key=obj_name)
+
+    def upload_video(self):
+        self._upload_video('data/test/bibi_mov.avi', 'bibi_mov.avi')
+        self._upload_video('data/test/merkel_mov.avi', 'merkel_mov.avi')
+        self._upload_video('data/test/trump_mov.avi', 'trump_mov.avi')
+        self._upload_video('data/test/obama_mov.avi', 'obama_mov.avi')
 
     def create_other_containers(self):
         self.client.create_bucket(Bucket='e2emlstorlets-trained')
@@ -67,8 +73,8 @@ class DemoData():
 
     def create_demo_data(self):
         #self.upload_train_files('data/train')
-        self.upload_test_files('data/test')
-        #self.upload_video()
+        #self.upload_test_files('data/test')
+        self.upload_video()
         #self.create_other_containers()
 
     def delete_demo_data(self):

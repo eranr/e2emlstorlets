@@ -66,7 +66,6 @@ class TestTrainModel(unittest.TestCase):
         name_to_id = {'eran': 1 }
         name_to_id_str = json.dumps(name_to_id)
         headers = {'X-Run-Storlet': 'train_model.py'}
-        headers['X-Storlet-Parameter-1'] = 'name_to_id: %s' % name_to_id_str
         source_obj1 = 'small_eran.jpeg'
         source_obj2 = os.path.join('/' + self.container_name,
                                    'small_eran_2.jpeg')
@@ -90,6 +89,3 @@ class TestTrainModel(unittest.TestCase):
         headers, body = client.get_object(self.url, self.token,
                                           self.container_name, 'model')
         regressor = pickle.loads(body)
-        self.assertTrue('x-object-meta-name-to-id' in headers)
-        name_to_id=json.loads(headers['x-object-meta-name-to-id'])
-        self.assertTrue(name_to_id['eran']==1)

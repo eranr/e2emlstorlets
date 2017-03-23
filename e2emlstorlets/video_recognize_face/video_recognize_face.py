@@ -16,10 +16,19 @@ def crop(img, rect):
     w = rect[2]-rect[0]
     x = rect[0]
     y = rect[1]
-    return img[y:y+h, x:x+w]
+    # account for forehead part
+    hm = 0.1 * h
+    hm = int(hm)
+    if y >= hm:
+        cropped = img[y-hm:y+h, x:x+w]
+    else:
+        h = h + (hm - y)
+        hm = y
+        cropped = img[y-hm:y+h, x:x+w]
+    return cropped
 
 
-def recognize_face(frame, model, id_to_name):
+def recognize_face(frame, model):
     cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml")
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     rects = cascade.detectMultiScale(gray_frame)
@@ -27,25 +36,12 @@ def recognize_face(frame, model, id_to_name):
         return [], mat
     rects[:, 2:] += rects[:, :2]
     face = crop(gray_frame, rects[0])
-    small_face = cv2.resize(face, (30,30))
+    small_face = cv2.resize(face, (50,55))
     small_face_array = np.asarray(small_face[:,:])
-    small_face_vec = small_face_array.reshape(1,900)
-    face_id = model.predict(small_face_vec)
-    name = 'I do not know'
-    try:
-        name = id_to_name[round(face_id)]
-    except KeyError:
-        pass
-
+    small_face_vec = small_face_array.reshape(1,2750)
+    name = model.predict(small_face_vec)[0]
     return name
 
-
-def id_to_name_dict(name_to_id):
-    id_to_name = dict()
-    for k in name_to_id.keys():
-        id_to_name[name_to_id[k]] = k
-
-    return id_to_name
 
 @contextmanager
 def avi_fifo(name, logger):
@@ -89,14 +85,14 @@ class fifo_worker(threading.Thread):
         os.close(fd)
         self.logger.debug('fifo worker exits\n')
 
-def main_loop(cap, capo, model, id_to_name, logger):
+def main_loop(cap, capo, model, logger):
     while(True):
         ret, frame = cap.read()
         out_image = frame
 
         # Calculate output frame
         if ret==True:
-            name = recognize_face(frame, model, id_to_name)
+            name = recognize_face(frame, model)
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(out_image, name, (20, 100), font, 1, (200,255,155) )
             capo.write(out_image)
@@ -117,21 +113,15 @@ class MovieRecognizeFace(object):
         movie_file = in_files[0]
         movie_fd = movie_file.fileno()
         model_file = in_files[1]
-        model_md = model_file.get_metadata()
-        self.logger.debug('metadata type is %s' % str(type(model_md)))
-        for k in model_md.keys():
-            self.logger.debug('k=%s, v=%s\n' % (str(k), str(model_md[k])))
-        name_to_id = json.loads(model_md['Name-To-Id'])
-        id_to_name = id_to_name_dict(name_to_id)
 
-        regressor_buf = ''
+        classifier_buf = ''
         while True:
             buf = model_file.read(1024)
             if not buf:
                 break
-            regressor_buf += buf   
+            classifier_buf += buf   
         self.logger.debug('model read\n')
-        model = pickle.loads(regressor_buf)
+        model = pickle.loads(classifier_buf)
         model_file.close()
         self.logger.debug('model decoded\n')
 
@@ -155,7 +145,7 @@ class MovieRecognizeFace(object):
             self.logger.debug('movie writer opened\n')
 
             try:
-                main_loop(cap, capo, model, id_to_name, self.logger)
+                main_loop(cap, capo, model, self.logger)
             except Exception as e:
                 self.logger.debug('main_loop exception %s\n' % str(e))
                 raise

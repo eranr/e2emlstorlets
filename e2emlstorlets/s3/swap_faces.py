@@ -39,12 +39,12 @@ def swap_movie_face(input_movie_path, input_face_path):
         cap.release()
         capo.release()
 
-def get_swap_and_upload(face_object):
+def get_swap_and_upload(face_object, movie_object):
     client = boto3.client('s3')
 
     print('Downloading source movie from S3')
     res = client.get_object(Bucket='e2emlstorlets-video',
-                            Key='eran_mov.avi')
+                            Key=movie_object)
     with open('/tmp/source_movie.avi','w') as f:
         while(True):
             buf = res['Body'].read(1024)
@@ -67,11 +67,11 @@ def get_swap_and_upload(face_object):
     with open('/tmp/swapped_movie.avi','r') as f:
         client.put_object(Body=f,
                           Bucket='e2emlstorlets-video',
-                          Key='eran_swapped_mov.avi')
+                          Key='swapped_%s' % movie_object)
 
 
 def main(args):
-    get_swap_and_upload(args[0])
+    get_swap_and_upload(args[0], args[1])
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

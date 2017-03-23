@@ -5,17 +5,17 @@ import boto3
 import pickle
 import numpy as np
 import sklearn.neural_network as snn
+from e2emlstorlets.training_constants import *
 
 
-def build_traning_data(client, name_to_id):
+def build_traning_data(client):
     response = client.list_objects(Bucket='e2emlstorlets-small-train')
     if response['IsTruncated']==True:
         raise Exception('Truncated Bucket')
     num_files = len(response['Contents'])
-    X = np.ndarray(shape=(num_files,30*30), dtype=np.int32)
-    y = np.ndarray(shape=(num_files,), dtype=np.int32)
+    X = np.ndarray(shape=(num_files,width*height), dtype=np.int32)
+    y = np.ndarray(shape=(num_files,), dtype='|S6')
 
-    
     i = 0
     for obj in response['Contents']:
         objName = obj['Key']
@@ -29,33 +29,34 @@ def build_traning_data(client, name_to_id):
         image_array = np.asarray(image_mat[:,:])
         image_vec = image_array.reshape(1,900)
         X[i,:] = image_vec
-        y[i] = name_to_id[leader_name]
+        y[i] = leader_name
         i=i+1
 
     return X, y
 
 def train_model(X, y):
-    regressor = snn.MLPRegressor(
-        hidden_layer_sizes=(100,),
-        activation='logistic',
-        solver='lbfgs',
-        max_iter=1000)
-    regressor.fit(X,y)
-    return regressor
+    classifier = snn.MLPClassifier(
+        hidden_layer_sizes=hidden_layers_sizes,
+        activation=activation,
+        solver=solver,
+        max_iter=max_iter,
+        alpha=alpha,
+        tol=tolerance,
+        random_state=random_state)
+    classifier.fit(X,y)
+    return classifier
 
-def upload_model(client, model_path, name_to_id):
+def upload_model(client, model_path):
     with open(model_path, 'r') as f:
         client.put_object(Bucket='e2emlstorlets-trained',
                           Body=f,
-                          Key='model',
-                          Metadata={'name_to_id': json.dumps(name_to_id)})
+                          Key='model')
 
 
 def train_and_upload_model():
     client = boto3.client('s3')
-    name_to_id={'bibi': 1, 'merkel': 2, 'obama': 3, 'trump': 4}
     print('Building training set from data on S3')
-    X, y = build_traning_data(client, name_to_id)
+    X, y = build_traning_data(client)
 
     print('Training model')
     model = train_model(X, y)
@@ -63,7 +64,7 @@ def train_and_upload_model():
         pickle.dump(model, fmodel)
 
     print('Uploading trained model')
-    upload_model(client, '/tmp/model', name_to_id)
+    upload_model(client, '/tmp/model')
 
 def main():
     train_and_upload_model()

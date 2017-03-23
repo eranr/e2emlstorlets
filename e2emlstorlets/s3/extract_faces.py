@@ -2,6 +2,8 @@ import sys
 import cv2
 import boto3
 
+from e2emlstorlets.training_constants import *
+
 def detect(im):
     mat=cv2.imdecode(im, cv2.IMREAD_GRAYSCALE)
     cascade = cv2.CascadeClassifier("/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml")
@@ -18,7 +20,17 @@ def crop(img, rect):
     w = rect[2]-rect[0]
     x = rect[0]
     y = rect[1]
-    return img[y:y+h, x:x+w]
+    # account for forehead part
+    hm = height_frac * h
+    hm = int(hm)
+    if y >= hm:
+        cropped = img[y-hm:y+h, x:x+w]
+    else:
+        h = h + (hm - y)
+        hm = y
+        cropped = img[y-hm:y+h, x:x+w]
+    return cropped
+
 
 def get_name(obj_name):
     name = obj_name[:obj_name.find('.')]
@@ -36,7 +48,7 @@ def extract_face(path, outpath):
     rect = rects[0]
 
     face = crop(mat, rect)
-    small_face = cv2.resize(face, (30,30))
+    small_face = cv2.resize(face, (width,height))
     cv2.imwrite(outpath, small_face)
 
 def extract_and_upload_all():

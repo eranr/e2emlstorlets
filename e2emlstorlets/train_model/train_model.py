@@ -24,22 +24,18 @@ class TrainModel(object):
         self.logger = logger
 
     def __call__(self, in_files, out_files, params):
-        metadata = {'name_to_id': params['name_to_id']}
+        metadata = {}
         out_files[0].set_metadata(metadata)
-        name_to_id = json.loads(params['name_to_id'])
 
         i = 0
         num_files = len(in_files)
-        X = np.ndarray(shape=(num_files,30*30), dtype=np.int32)
-        y = np.ndarray(shape=(num_files,), dtype=np.int32)
+        X = np.ndarray(shape=(num_files,50*55), dtype=np.int32)
+        y = np.ndarray(shape=(num_files,), dtype='|S6')
 
         for input_file in in_files:
             md = input_file.get_metadata()
-            self.logger.debug('md is %s' % md)
+            self.logger.debug('md is %s\n' % md)
             name = md['Name']
-            name_id = name_to_id[name]
-            self.logger.debug(('reading input file with name %s, id %s' % 
-                              (name, str(name_id))))
 
             img_str = ''
             while True:
@@ -47,26 +43,29 @@ class TrainModel(object):
                 if not buf:
                     break
                 img_str += buf   
-            self.logger.debug('Recieved %d bytes' % len(buf))
+            self.logger.debug('Recieved %d bytes\n' % len(img_str))
             img_nparray = np.fromstring(img_str, np.uint8)
             image_mat = cv2.imdecode(img_nparray, cv2.IMREAD_GRAYSCALE)
             image_array = np.asarray(image_mat[:,:])
-            image_vec = image_array.reshape(1,900)
+            image_vec = image_array.reshape(1,2750)
             X[i,:] = image_vec
-            y[i] = name_id
+            y[i] = name
             i=i+1
             input_file.close()
+            self.logger.debug('Done with %s\n' % name)
 
-        self.logger.debug('Done reading data')
+        self.logger.debug('Done reading data\n')
     
-        regressor = snn.MLPRegressor(
-        hidden_layer_sizes=(100,),
+        classifier = snn.MLPClassifier(
+        hidden_layer_sizes=(100,50,25,10),
         activation='logistic',
         solver='lbfgs',
-        max_iter=1000)
-        regressor.fit(X,y)
-        self.logger.debug('Done Training')
+        max_iter=2000,
+        alpha=0.000001,
+        tol=1e-6)
+        classifier.fit(X,y)
+        self.logger.debug('Done Training\n')
 
-        sregressor = pickle.dumps(regressor)
-        out_files[0].write(sregressor)
+        sclassifier = pickle.dumps(classifier)
+        out_files[0].write(sclassifier)
         out_files[0].close()

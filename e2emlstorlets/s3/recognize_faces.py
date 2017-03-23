@@ -4,17 +4,17 @@ import json
 import boto3
 import pickle
 import numpy as np
-from e2emlstorlets.video_recognize_face.video_recognize_face import recognize_face, id_to_name_dict 
+from e2emlstorlets.video_recognize_face.video_recognize_face import recognize_face
 
 
-def main_loop(cap, capo, model, id_to_name):
+def main_loop(cap, capo, model):
     while(True):
         ret, frame = cap.read()
         out_image = frame
 
         # Calculate output frame
         if ret==True:
-            name = recognize_face(frame, model, id_to_name)
+            name = recognize_face(frame, model)
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(out_image, name, (20, 100), font, 1, (200,255,155) )
             capo.write(out_image)
@@ -23,7 +23,7 @@ def main_loop(cap, capo, model, id_to_name):
             break
 
 
-def tag_movie_face(input_movie_path, input_model_path, id_to_name):
+def tag_movie_face(input_movie_path, input_model_path):
     model = None
     with open(input_model_path, 'r') as fmodel:
         model = pickle.load(fmodel)
@@ -38,7 +38,7 @@ def tag_movie_face(input_movie_path, input_model_path, id_to_name):
     capo = cv2.VideoWriter()
     capo.open('/tmp/tagged_movie.avi', fourcc, fps, (width,height))
     try:
-        main_loop(cap, capo, model, id_to_name)
+        main_loop(cap, capo, model)
     except Exception as e:
         print('main_loop exception %s\n' % str(e))
         raise
@@ -47,12 +47,12 @@ def tag_movie_face(input_movie_path, input_model_path, id_to_name):
         capo.release()
 
 
-def get_tag_and_upload():
+def get_tag_and_upload(movie_object):
     client = boto3.client('s3')
 
     print('Downloading swapped movie from S3')
     res = client.get_object(Bucket='e2emlstorlets-video',
-                            Key='eran_swapped_mov.avi')
+                            Key=movie_object)
     with open('/tmp/source_swapped_movie.avi','w') as f:
         while(True):
             buf = res['Body'].read(1024)
@@ -65,8 +65,6 @@ def get_tag_and_upload():
     print('Downloading model')
     res = client.get_object(Bucket='e2emlstorlets-trained',
                             Key='model')
-    name_to_id = json.loads(res['Metadata']['name_to_id'])
-    id_to_name = id_to_name_dict(name_to_id)
     with open('/tmp/model','w') as f:
         while(True):
             buf = res['Body'].read(1024)
@@ -77,17 +75,17 @@ def get_tag_and_upload():
                 break
 
     print('Tagging face')
-    tag_movie_face('/tmp/source_swapped_movie.avi', '/tmp/model', id_to_name)
+    tag_movie_face('/tmp/source_swapped_movie.avi', '/tmp/model')
 
     print('Uploading Result')
     with open('/tmp/tagged_movie.avi','r') as f:
         client.put_object(Body=f,
                           Bucket='e2emlstorlets-video',
-                          Key='eran_tagged_mov.avi')
+                          Key='tagged_%s' % movie_object)
 
 
-def main():
-    get_tag_and_upload()
+def main(args):
+    get_tag_and_upload(args[0])
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

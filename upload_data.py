@@ -27,13 +27,20 @@ class DemoData():
                                   container_name, f, buf,
                                   headers=headers)
 
+    def _upload_video(self, local_path, container_name, obj_name):
+        with open(local_path,'r') as buf:
+            client.put_object(self.url, self.token,
+                              'video', obj_name,
+                              buf)
+
     def upload_video(self):
         client.put_container(self.url, self.token,
                              'video')
-        with open('test/data/eran_mov.avi','r') as buf:
-            client.put_object(self.url, self.token,
-                              'video', 'eran_mov.avi',
-                              buf)
+        self._upload_video('test/data/eran_mov.avi', 'video',  'eran_mov.avi')
+        self._upload_video('data/test/bibi_mov.avi', 'test', 'bibi_mov.avi')
+        self._upload_video('data/test/merkel_mov.avi', 'test',  'merkel_mov.avi')
+        self._upload_video('data/test/trump_mov.avi', 'test', 'trump_mov.avi')
+        self._upload_video('data/test/obama_mov.avi', 'test', 'obama_mov.avi')
 
     def upload_storlets(self):
         deploy_storlet(self.conf,
@@ -53,7 +60,7 @@ class DemoData():
         client.put_container(self.url, self.token,
                              'trained')
         client.put_container(self.url, self.token,
-                             'str')
+                             'extracted')
 
     def clean_container(self, container_name):
         _, objects = client.get_container(
@@ -74,17 +81,17 @@ class DemoData():
         client.delete_container(self.url, self.token, container_name)    
 
     def create_demo_data(self):
-        self.upload_data_files('data/train','tr')
-        self.upload_data_files('data/test','te')
-        self.upload_video()
+        #self.upload_data_files('data/train','train')
+        #self.upload_data_files('data/test','test')
+        #self.upload_video()
         self.upload_storlets()
-        self.create_other_containers()
+        #self.create_other_containers()
 
 
     def delete_demo_data(self):
-        self.clean_container('tr')
-        self.clean_container('te')
-        self.clean_container('str')
+        self.clean_container('train')
+        self.clean_container('test')
+        self.clean_container('extracted')
         self.clean_container('video')
         self.clean_container('trained')
         client.delete_object(self.url, self.token, 'storlet',
