@@ -62,7 +62,7 @@ class TrainModel(object):
             solver='lbfgs',
             max_iter=2000,
             alpha=0.000001,
-            tol=1e-7,
+            tol=1e-6,
             random_state=1)
         classifier.fit(X,y)
         self.logger.debug('Done Training\n')
