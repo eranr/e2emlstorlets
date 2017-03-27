@@ -16,8 +16,10 @@
 import cv2
 import json
 import pickle
+import random
 import numpy as np
 import sklearn.neural_network as snn
+
 
 class TrainModel(object):
     def __init__(self, logger):
@@ -32,10 +34,11 @@ class TrainModel(object):
         X = np.ndarray(shape=(num_files,50*55), dtype=np.int32)
         y = np.ndarray(shape=(num_files,), dtype='|S6')
 
+        random.shuffle(in_files)
         for input_file in in_files:
             md = input_file.get_metadata()
-            self.logger.debug('md is %s\n' % md)
             name = md['Name']
+            filename = md['Filename']
 
             img_str = ''
             while True:
@@ -44,7 +47,7 @@ class TrainModel(object):
                     break
                 img_str += buf   
             input_file.close()
-            self.logger.debug('Recieved %d bytes\n' % len(img_str))
+            self.logger.debug('%s\n' % hash(img_str))
             img_nparray = np.fromstring(img_str, np.uint8)
             image_mat = cv2.imdecode(img_nparray, cv2.IMREAD_GRAYSCALE)
             image_array = np.asarray(image_mat[:,:])
@@ -52,20 +55,21 @@ class TrainModel(object):
             X[i,:] = image_vec
             y[i] = name
             i=i+1
-            self.logger.debug('Done with %s\n' % name)
 
         self.logger.debug('Done reading data\n')
     
         classifier = snn.MLPClassifier(
-            hidden_layer_sizes=(100,50,25,10),
+            hidden_layer_sizes=(100,20,8),
             activation='logistic',
             solver='lbfgs',
             max_iter=2000,
-            alpha=0.000001,
-            tol=1e-6,
-            random_state=1)
+            alpha=0.00000004,
+            tol=1e-9,
+            random_state=None)
         classifier.fit(X,y)
         self.logger.debug('Done Training\n')
+        self.logger.debug('score is %s\n' % classifier.score(X,y))
+        self.logger.debug('classes are %s\n' % classifier.classes_)
 
         sclassifier = pickle.dumps(classifier)
         out_files[0].write(sclassifier)

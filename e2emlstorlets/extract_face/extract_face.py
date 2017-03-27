@@ -33,15 +33,11 @@ def crop(img, rect):
     x = rect[0]
     y = rect[1]
     # account for forehead part
-    hm = 0.1 * h
-    hm = int(hm)
-    if y >= hm:
-        cropped = img[y-hm:y+h, x:x+w]
-    else:
+    hm = int(0.1 * h)
+    if y < hm:
         h = h + (hm - y)
         hm = y
-        cropped = img[y-hm:y+h, x:x+w]
-    return cropped
+    return img[y-hm:y+h, x:x+w]
 
 
 class ExtractFace(object):
@@ -51,7 +47,6 @@ class ExtractFace(object):
     def __call__(self, in_files, out_files, params):
         self.logger.debug('Returning metadata\n')
         metadata = in_files[0].get_metadata()
-        metadata['name'] = params.get('name', '')
 
         self.logger.debug('Start to read object data\n')
         img_str = ''

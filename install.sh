@@ -1,6 +1,6 @@
 #git clone https://github.com/openstack/storlets ~/storlets
-cd ~/storlets
-./s2aio.sh dev host
+#cd ~/storlets
+#./s2aio.sh dev host
 
 NUM_IMAGES=`sudo docker images | grep  -v ubuntu | grep -v REPOSITORY | awk '{print $1}' | wc -l`
 
@@ -26,7 +26,7 @@ MAINTAINER root
 # to prevent docker images from including apt cache file.
 RUN apt-get update && \
     apt-get install cmake -y && \
-    pip install python-numpy==1.11.3 -y && \
+    pip install numpy==1.11.3 && \
     apt-get install python-scipy -y && \
     pip install scikit-learn==0.18 && \
     apt-get install libboost-all-dev -y && \

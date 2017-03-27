@@ -17,15 +17,11 @@ def crop(img, rect):
     x = rect[0]
     y = rect[1]
     # account for forehead part
-    hm = 0.1 * h
-    hm = int(hm)
-    if y >= hm:
-        cropped = img[y-hm:y+h, x:x+w]
-    else:
+    hm = int(0.1 * h)
+    if y < hm:
         h = h + (hm - y)
         hm = y
-        cropped = img[y-hm:y+h, x:x+w]
-    return cropped
+    return img[y-hm:y+h, x:x+w]
 
 
 def recognize_face(frame, model):
@@ -33,7 +29,7 @@ def recognize_face(frame, model):
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     rects = cascade.detectMultiScale(gray_frame)
     if len(rects) == 0:
-        return 'I do not know'
+        return 'None'
     rects[:, 2:] += rects[:, :2]
     face = crop(gray_frame, rects[0])
     small_face = cv2.resize(face, (50,55))
@@ -86,6 +82,7 @@ class fifo_worker(threading.Thread):
         self.logger.debug('fifo worker exits\n')
 
 def main_loop(cap, capo, model, logger):
+    hist = {'bibi': 0,'merkel': 0,'obama': 0,'trump': 0, 'None': 0}
     while(True):
         ret, frame = cap.read()
         out_image = frame
@@ -93,12 +90,15 @@ def main_loop(cap, capo, model, logger):
         # Calculate output frame
         if ret==True:
             name = recognize_face(frame, model)
+            hist[name] += 1
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(out_image, name, (20, 100), font, 1, (200,255,155) )
             capo.write(out_image)
         else:
             logger.debug('No more frames. Exiting\n')
             break
+
+    logger.debug('Stats: %s\n' % hist)
 
 class MovieRecognizeFace(object):
     def __init__(self, logger):
@@ -124,6 +124,7 @@ class MovieRecognizeFace(object):
         model = pickle.loads(classifier_buf)
         model_file.close()
         self.logger.debug('model decoded\n')
+        self.logger.debug('model=%s\n' % model)
 
         fifo_name = '/tmp/fifo_%s.avi' % str(os.getpid())
         with avi_fifo(fifo_name, self.logger):

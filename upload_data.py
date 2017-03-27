@@ -21,7 +21,8 @@ class DemoData():
             fname = '%s/%s' % (local_path, f)
             name = f[:f.find('.')]
             name = ''.join([i for i in name if not i.isdigit()])
-            headers = {'X-Object-Meta-name': name}
+            headers = {'X-Object-Meta-name': name,
+                       'X-Object-Meta-filename': f}
             with open(fname,'r') as buf:
                 client.put_object(self.url, self.token,
                                   container_name, f, buf,
@@ -81,11 +82,11 @@ class DemoData():
         client.delete_container(self.url, self.token, container_name)    
 
     def create_demo_data(self):
-        #self.upload_data_files('data/train','train')
-        #self.upload_data_files('data/test','test')
-        #self.upload_video()
+        self.upload_data_files('data/train','train')
+        self.upload_data_files('data/test','test')
+        self.upload_video()
         self.upload_storlets()
-        #self.create_other_containers()
+        self.create_other_containers()
 
 
     def delete_demo_data(self):

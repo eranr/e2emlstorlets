@@ -1,8 +1,8 @@
-sudo pip install python-numpy==1.11.3 -y
+sudo pip install numpy==1.11.3
 sudo apt-get install python-scipy -y
 sudo pip install scikit-learn==0.18
-sudo apt-get install libboost-all-dev -y
-sudo pip install dlib
+#sudo apt-get install libboost-all-dev -y
+#sudo pip install dlib
 sudo pip install jupyter
 sudo apt-get install cmake -y
 sudo apt-get install qt5-default -y
