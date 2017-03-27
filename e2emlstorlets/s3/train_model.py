@@ -5,6 +5,7 @@ import boto3
 import pickle
 import numpy as np
 import sklearn.neural_network as snn
+from random import shuffle
 from e2emlstorlets.training_constants import *
 
 
@@ -17,7 +18,9 @@ def build_traning_data(client):
     y = np.ndarray(shape=(num_files,), dtype='|S6')
 
     i = 0
-    for obj in response['Contents']:
+    objects = response['Contents']
+    shuffle(objects)
+    for obj in objects:
         objName = obj['Key']
         res = client.get_object(Bucket='e2emlstorlets-small-train',
                                 Key=objName)

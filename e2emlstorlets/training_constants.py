@@ -1,10 +1,10 @@
-hidden_layers_sizes = (100, 50, 25, 10)
+hidden_layers_sizes = (100, 20, 8)
 activation = 'logistic'
 solver = 'lbfgs'
 max_iter=2000
-alpha = 0.000001
-tolerance = 1e-6
-random_state = 1
+alpha = 0.00000004
+tolerance = 1e-8
+random_state = None
 
 width = 50
 height = 55

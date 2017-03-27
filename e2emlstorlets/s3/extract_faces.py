@@ -21,15 +21,11 @@ def crop(img, rect):
     x = rect[0]
     y = rect[1]
     # account for forehead part
-    hm = height_frac * h
-    hm = int(hm)
-    if y >= hm:
-        cropped = img[y-hm:y+h, x:x+w]
-    else:
+    hm = int(0.1 * h)
+    if y < hm:
         h = h + (hm - y)
         hm = y
-        cropped = img[y-hm:y+h, x:x+w]
-    return cropped
+    return img[y-hm:y+h, x:x+w]
 
 
 def get_name(obj_name):
