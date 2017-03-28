@@ -21,6 +21,21 @@ Those packages include: opencv, scikit-learn and dlib
 In addition the prepare_machine.sh will install all the necessary
 packages to run jupyter and the demo notebook.
 
+# Running the demo
+
+```
+sudo python setup.py install
+python upload_data.py create
+jupyter notebook --no-browser --ip=<host ip>
+```
+
+Follow the output of the "jupyter_notebook" instruction above
+to connect from a browser. From the browser, open the notebook:
+"e2emlstorlets/e2e-demo-swift.ipynb"
+
+These instructions do not cover the last part of the demo which
+compares run time with AWS S3.
+
 # Copyright Notice
 The code behind the face swap is a combination of code borrowed from
 Satya Mallic [0], [1] and from Matthew Earl [2], [3]
@@ -30,14 +45,3 @@ Satya Mallic [0], [1] and from Matthew Earl [2], [3]
 [2] http://matthewearl.github.io/2015/07/28/switching-eds-with-python/
 [3] https://github.com/matthewearl/faceswap/blob/master/faceswap.py
 
-# Running the demo
-
-```
-sudo python setup.py install
-python upload_data create
-jupyter notebook --no-browser --ip=<host ip>
-```
-
-Follow the output of the "jupyter_notebook" instruction above
-to connect from a browser. From the browser, open the notebook:
-"e2emlstorlets/e2e-demo-swift.ipynb"

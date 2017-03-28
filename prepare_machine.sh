@@ -1,8 +1,6 @@
 sudo pip install numpy==1.11.3
 sudo apt-get install python-scipy -y
 sudo pip install scikit-learn==0.18
-#sudo apt-get install libboost-all-dev -y
-#sudo pip install dlib
 sudo pip install jupyter
 sudo apt-get install cmake -y
 sudo apt-get install qt5-default -y
@@ -11,8 +9,6 @@ sudo apt-get install --assume-yes libopencv-dev libgtk-3-dev libdc1394-22 libdc1
 sudo apt-get install --assume-yes libavcodec-dev libavformat-dev libswscale-dev libxine2-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev
 sudo apt-get install --assume-yes libv4l-dev libtbb-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev
 sudo apt-get install --assume-yes libvorbis-dev libxvidcore-dev v4l-utils
-sudo apt-get install libboost-all-dev -y
-sudo pip install dlib
 sudo pip install matplotlib
 sudo pip install boto3
 sudo apt-get install python-tk

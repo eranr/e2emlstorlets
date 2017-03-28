@@ -1,6 +1,10 @@
-#git clone https://github.com/openstack/storlets ~/storlets
-#cd ~/storlets
-#./s2aio.sh dev host
+git clone https://github.com/openstack/storlets ~/storlets
+# patch storlets master:
+sed -i 's/#define MAX_MSG_LENGTH    4096/#define MAX_MSG_LENGTH    102400/' ~/storlets/src/c/sbus/sbus.c
+sed -i 's/        "storlet_timeout": "40",/        "storlet_timeout": "120",/' ~/storlets/install/storlets/templates/cluster_config
+exit
+cd ~/storlets
+./s2aio.sh dev host
 
 NUM_IMAGES=`sudo docker images | grep  -v ubuntu | grep -v REPOSITORY | awk '{print $1}' | wc -l`
 
@@ -29,8 +33,6 @@ RUN apt-get update && \
     pip install numpy==1.11.3 && \
     apt-get install python-scipy -y && \
     pip install scikit-learn==0.18 && \
-    apt-get install libboost-all-dev -y && \
-    pip install dlib && \
     apt-get install --assume-yes build-essential cmake git qt5-default && \
     apt-get install --assume-yes build-essential pkg-config unzip ffmpeg qtbase5-dev python-dev && \
     apt-get install --assume-yes libopencv-dev libgtk-3-dev libdc1394-22 libdc1394-22-dev libjpeg-dev libpng12-dev libtiff5-dev libjasper-dev && \
