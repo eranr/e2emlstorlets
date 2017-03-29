@@ -75,7 +75,7 @@ def extract_and_upload_all():
         #upload result
         print('Uploading %s' % smallObjName)
         with open(localOutName,'r') as f:
-            client.put_object(Bucket='e2emlstorlets-small-train',
+            client.put_object(Bucket='e2emlstorlets-extracted',
                               Body=f.read(),
                               Key=smallObjName,
                               Metadata={'name': leader_name})

@@ -10,7 +10,7 @@ from e2emlstorlets.training_constants import *
 
 
 def build_traning_data(client):
-    response = client.list_objects(Bucket='e2emlstorlets-small-train')
+    response = client.list_objects(Bucket='e2emlstorlets-extracted')
     if response['IsTruncated']==True:
         raise Exception('Truncated Bucket')
     num_files = len(response['Contents'])
@@ -22,7 +22,7 @@ def build_traning_data(client):
     shuffle(objects)
     for obj in objects:
         objName = obj['Key']
-        res = client.get_object(Bucket='e2emlstorlets-small-train',
+        res = client.get_object(Bucket='e2emlstorlets-extracted',
                                 Key=objName)
         leader_name = res['Metadata']['name']
         print('Adding %s of size %d to training set' % (objName, res['ContentLength']))
@@ -51,7 +51,7 @@ def train_model(X, y):
 
 def upload_model(client, model_path):
     with open(model_path, 'r') as f:
-        client.put_object(Bucket='e2emlstorlets-trained',
+        client.put_object(Bucket='e2emlstorlets-model',
                           Body=f,
                           Key='model')
 

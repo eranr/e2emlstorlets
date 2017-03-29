@@ -20,12 +20,36 @@ import random
 import numpy as np
 import sklearn.neural_network as snn
 
+from ast import literal_eval
+
 
 class TrainModel(object):
     def __init__(self, logger):
         self.logger = logger
 
+    def parse_params(self, params):
+        hidden_layer_sizes = params.get('hidden_layer_sizes','(100, 20, 8)')
+        self.hidden_layer_sizes = literal_eval(hidden_layer_sizes)
+        self.logger.debug('hidden_layer_sizes: %s %s\n' % (type(self.hidden_layer_sizes), self.hidden_layer_sizes))
+        self.activation = params.get('activation', 'logistic')
+        self.logger.debug('activation: %s %s\n' % (type(self.activation), self.activation))
+        self.solver = params.get('solver', 'lbfgs')
+        self.logger.debug('solver: %s %s\n' % (type(self.solver), self.solver))
+        self.max_iter = int(params.get('max_iter', '2000'))
+        self.logger.debug('max_iter: %s %s\n' % (type(self.max_iter), self.max_iter))
+        self.alpha = float(params.get('alpha', '4e-8'))
+        self.logger.debug('alpha: %s %s\n' % (type(self.alpha), self.alpha))
+        self.tol = float(params.get('tol', '1e-9'))
+        self.logger.debug('tol: %s %s\n' % (type(self.tol), self.tol))
+        random_state = params.get('random_state', '')
+        if random_state:
+            self.random_state = int(random_state)
+        else:
+            self.random_state = None
+        self.logger.debug('random_state: %s %s\n' % (type(self.random_state), self.random_state))
+
     def __call__(self, in_files, out_files, params):
+        self.parse_params(params)
         metadata = {}
         out_files[0].set_metadata(metadata)
 
@@ -59,15 +83,24 @@ class TrainModel(object):
         self.logger.debug('Done reading data\n')
     
         classifier = snn.MLPClassifier(
-            hidden_layer_sizes=(100,20,8),
-            activation='logistic',
-            solver='lbfgs',
-            max_iter=2000,
-            alpha=0.00000004,
-            tol=1e-8,
-            random_state=None)
+            hidden_layer_sizes=self.hidden_layer_sizes,
+            activation=self.activation,
+            solver=self.solver,
+            max_iter=self.max_iter,
+            alpha=self.alpha,
+            tol=self.tol,
+            random_state=None if self.random_state is None else self.random_state)
+#        classifier = snn.MLPClassifier(
+#            hidden_layer_sizes=(100, 20, 8),
+#            activation='logistic',
+#            solver='lbfgs',
+#            max_iter=2000,
+#            alpha=0.00000004,
+#            tol=1e-9,
+#            random_state=None)
         classifier.fit(X,y)
         self.logger.debug('Done Training\n')
+        self.logger.debug('Classifier paramters used: %s\n' % classifier)
         self.logger.debug('score is %s\n' % classifier.score(X,y))
         self.logger.debug('classes are %s\n' % classifier.classes_)
 

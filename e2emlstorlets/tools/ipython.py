@@ -186,8 +186,6 @@ class StorletMagics(Magics):
 
         print('Upload storlets succeeded /%s/%s'
               % (args.container, storlet_obj))
-        print('Example command `swift download <container> <object> '
-              '-H X-Run-Storlet:%s`' % storlet_obj)
 
         if args.with_invoke:
             if not args.input:

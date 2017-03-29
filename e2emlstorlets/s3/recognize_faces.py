@@ -51,7 +51,7 @@ def get_tag_and_upload(movie_object):
     client = boto3.client('s3')
 
     print('Downloading source movie to tag from S3')
-    res = client.get_object(Bucket='e2emlstorlets-video',
+    res = client.get_object(Bucket='e2emlstorlets-videos',
                             Key=movie_object)
     with open('/tmp/source_movie.avi','w') as f:
         while(True):
@@ -63,7 +63,7 @@ def get_tag_and_upload(movie_object):
                 break
 
     print('Downloading model')
-    res = client.get_object(Bucket='e2emlstorlets-trained',
+    res = client.get_object(Bucket='e2emlstorlets-model',
                             Key='model')
     with open('/tmp/model','w') as f:
         while(True):
@@ -80,7 +80,7 @@ def get_tag_and_upload(movie_object):
     print('Uploading Result')
     with open('/tmp/tagged_movie.avi','r') as f:
         client.put_object(Body=f,
-                          Bucket='e2emlstorlets-video',
+                          Bucket='e2emlstorlets-videos',
                           Key='tagged_%s' % movie_object)
 
 

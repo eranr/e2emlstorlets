@@ -19,7 +19,7 @@ def show_plot(e, tr, t, es3, trs3, ts3):
     ax.set_ylabel('Time [Seconds]')
     ax.set_title('Swift & Storlets Vs. S3')
     ax.set_xticks(ind + width / 2)
-    ax.set_xticklabels(('Extract', 'Train', 'Swap', 'Recognize'))
+    ax.set_xticklabels(('Extract', 'Train', 'Recognize'))
     
     ax.legend((rects1[0], rects2[0]), ('Storlets', 'S3'))
     plt.show()
