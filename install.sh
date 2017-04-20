@@ -2,7 +2,6 @@ git clone https://github.com/openstack/storlets ~/storlets
 # patch storlets master:
 sed -i 's/#define MAX_MSG_LENGTH    4096/#define MAX_MSG_LENGTH    102400/' ~/storlets/src/c/sbus/sbus.c
 sed -i 's/        "storlet_timeout": "40",/        "storlet_timeout": "120",/' ~/storlets/install/storlets/templates/cluster_config
-exit
 cd ~/storlets
 ./s2aio.sh dev host
 

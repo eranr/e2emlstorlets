@@ -9,7 +9,7 @@ On a fresh new 16.04 VM with apasswordless sudoer simply:
 git clone https://github.com/eranr/e2emlstorlets.git
 cd e2emlstorlets
 ./install.sh
-tox -e functional
+tox -e func
 ./prepare_machine.sh
 ```
 
