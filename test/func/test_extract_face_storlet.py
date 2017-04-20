@@ -66,6 +66,4 @@ class TestExtractFaceStorlet(unittest.TestCase):
                                           self.container_name,'small_eran.jpeg')
 
         self.assertTrue('x-object-meta-rect' in headers)
-        self.assertTrue(headers['x-object-meta-rect']=='[500 121 620 241]')
-        self.assertTrue('x-object-meta-name' in headers)
-        self.assertTrue(headers['x-object-meta-name']=='eran')
+        self.assertTrue(headers['x-object-meta-rect']=='[498 119 621 242]')

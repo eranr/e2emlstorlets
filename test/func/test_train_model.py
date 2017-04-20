@@ -36,7 +36,8 @@ class TestTrainModel(unittest.TestCase):
         deploy_storlet(conf, 'e2emlstorlets/train_model/train_model.py',
                        'train_model.TrainModel')
         client.put_container(self.url, self.token, self.container_name)
-        headers = {'X-Object-Meta-Name': 'eran'}
+        headers = {'X-Object-Meta-Name': 'eran',
+                   'X-Object-Meta-Filename': 'eran'}
         put_local_file(self.url, self.token, self.container_name,
                        os.path.join(conf['repo_dir'], 'test/data'),
                                     'small_eran.jpeg', headers=headers)
